@@ -1,0 +1,68 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom styles for contentEditable placeholders */
+.html-editor:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.html-editor:focus:before {
+  display: none;
+}
+
+/* Print styles for PDF generation */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .resume-preview, .resume-preview * {
+    visibility: visible;
+  }
+  .resume-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    transform: none !important;
+  }
+}
+
+/* Template specific styles */
+.template-modern .header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.template-creative .sidebar {
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+}
+
+/* Animation classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
