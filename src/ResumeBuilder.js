@@ -692,21 +692,33 @@ const ResumeBuilder = () => {
       <div className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center py-4">
-            <div className="flex space-x-1">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-indigo-500 text-white shadow-md'
-                      : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
-                  }`}
-                >
-                  <span className="mr-2">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
+            <div className="flex items-center space-x-6">
+              {/* Company Logo */}
+                <div className="flex items-center space-x-3">
+                <img 
+                    src="/logo_color.webp" 
+                    alt="Placed.Today" 
+                    className="w-10 h-10 rounded-lg shadow-md object-contain"
+                />
+              </div>
+
+              {/* Navigation Tabs */}
+              <div className="flex space-x-1">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                      activeTab === tab.id
+                        ? 'bg-indigo-500 text-white shadow-md'
+                        : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
+                    }`}
+                  >
+                    <span className="mr-2">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
             
             <button
