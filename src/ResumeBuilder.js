@@ -690,40 +690,51 @@ const ResumeBuilder = () => {
     <div className="min-h-screen bg-gray-50 font-inter">
       {/* Header */}
       <div className="bg-white border-b shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-6">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center py-3 lg:py-4 gap-3 lg:gap-0">
+            {/* Top row: Logo and Download button */}
+            <div className="flex justify-between items-center w-full lg:w-auto">
               {/* Company Logo */}
-                <div className="flex items-center space-x-3">
-                <img 
-                    src="/logo_color.webp" 
-                    alt="Placed.Today" 
-                    className="w-100 h-10 rounded-lg shadow-md object-contain"
+              <div className="flex items-center space-x-3">
+                <img
+                  src="/logo_color.webp"
+                  alt="Placed.Today"
+                  className="h-8 sm:h-10 w-auto rounded-lg shadow-md object-contain"
                 />
               </div>
-
-              {/* Navigation Tabs */}
-              <div className="flex space-x-1">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
-                      activeTab === tab.id
-                        ? 'bg-indigo-500 text-white shadow-md'
-                        : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
-                    }`}
-                  >
-                    <span className="mr-2">{tab.icon}</span>
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              
+              {/* Download button - visible on mobile */}
+              <button
+                onClick={downloadPDF}
+                className="lg:hidden bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-2 rounded-lg font-medium text-sm transition-colors duration-200 flex items-center gap-2"
+              >
+                <Download size={14} />
+                <span className="hidden sm:inline">Download</span>
+              </button>
             </div>
             
+            {/* Navigation Tabs - responsive */}
+            <div className="flex flex-wrap gap-1 sm:gap-2 lg:space-x-1 lg:flex-nowrap overflow-x-auto">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-shrink-0 px-2 sm:px-3 lg:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? 'bg-indigo-500 text-white shadow-md'
+                      : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'
+                  }`}
+                >
+                  <span className="mr-1 sm:mr-2">{tab.icon}</span>
+                  <span className="hidden sm:inline lg:inline">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+            
+            {/* Download button - desktop only */}
             <button
               onClick={downloadPDF}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 flex items-center gap-2"
+              className="hidden lg:flex bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 items-center gap-2"
             >
               <Download size={16} />
               Download PDF
@@ -732,14 +743,14 @@ const ResumeBuilder = () => {
         </div>
       </div>
 
-      <div className="flex h-screen">
+      <div className="flex flex-col lg:flex-row min-h-screen">
         {/* Main Content */}
-        <div className={`${isFullscreen ? 'hidden' : 'w-1/2'} bg-white p-6 overflow-y-auto`}>
+        <div className={`${isFullscreen ? 'hidden' : 'w-full lg:w-1/2'} bg-white p-3 sm:p-4 lg:p-6 overflow-y-auto`}>
           {/* Templates Tab */}
           {activeTab === 'templates' && (
             <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Choose Your Template</h4>
-              <div className="grid grid-cols-2 gap-6">
+              <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Choose Your Template</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                 {[
                   { id: 1, name: 'Modern', desc: 'Professional & Eye-catching' },
                   { id: 2, name: 'Classic', desc: 'Traditional & Clean' },
@@ -771,13 +782,13 @@ const ResumeBuilder = () => {
           {/* Personal Information Tab */}
           {activeTab === 'personal' && (
             <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Personal Information</h4>
-              <div className="grid grid-cols-2 gap-4">
+              <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Personal Information</h4>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="col-span-1">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                   <input
                     type="text"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 lg:px-4 py-2 lg:py-3 focus:border-indigo-500 focus:outline-none transition-colors text-sm lg:text-base"
                     placeholder="John Doe"
                     value={resumeData.personal.fullName}
                     onChange={(e) => updatePersonalData('fullName', e.target.value)}
@@ -787,7 +798,7 @@ const ResumeBuilder = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Professional Title</label>
                   <input
                     type="text"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 lg:px-4 py-2 lg:py-3 focus:border-indigo-500 focus:outline-none transition-colors text-sm lg:text-base"
                     placeholder="Software Developer"
                     value={resumeData.personal.professionalTitle}
                     onChange={(e) => updatePersonalData('professionalTitle', e.target.value)}
@@ -797,7 +808,7 @@ const ResumeBuilder = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                   <input
                     type="email"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 lg:px-4 py-2 lg:py-3 focus:border-indigo-500 focus:outline-none transition-colors text-sm lg:text-base"
                     placeholder="john@example.com"
                     value={resumeData.personal.email}
                     onChange={(e) => updatePersonalData('email', e.target.value)}
@@ -807,7 +818,7 @@ const ResumeBuilder = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                   <input
                     type="tel"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 lg:px-4 py-2 lg:py-3 focus:border-indigo-500 focus:outline-none transition-colors text-sm lg:text-base"
                     placeholder="+1 234 567 8900"
                     value={resumeData.personal.phone}
                     onChange={(e) => updatePersonalData('phone', e.target.value)}
@@ -817,7 +828,7 @@ const ResumeBuilder = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
                   <input
                     type="text"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 lg:px-4 py-2 lg:py-3 focus:border-indigo-500 focus:outline-none transition-colors text-sm lg:text-base"
                     placeholder="New York, NY"
                     value={resumeData.personal.location}
                     onChange={(e) => updatePersonalData('location', e.target.value)}
@@ -827,13 +838,13 @@ const ResumeBuilder = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
                   <input
                     type="url"
-                    className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 lg:px-4 py-2 lg:py-3 focus:border-indigo-500 focus:outline-none transition-colors text-sm lg:text-base"
                     placeholder="linkedin.com/in/johndoe"
                     value={resumeData.personal.linkedin}
                     onChange={(e) => updatePersonalData('linkedin', e.target.value)}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-1 lg:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Professional Summary</label>
                   <HtmlEditor
                     value={resumeData.personal.summary}
@@ -849,7 +860,7 @@ const ResumeBuilder = () => {
           {/* Experience Tab */}
           {activeTab === 'experience' && (
             <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Work Experience</h4>
+              <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Work Experience</h4>
               <div className="space-y-4">
                 {resumeData.experience.map((exp, index) => (
                   <div key={exp.id} className="bg-gray-50 border-l-4 border-indigo-500 rounded-lg p-4">
@@ -862,7 +873,7 @@ const ResumeBuilder = () => {
                         <X size={18} />
                       </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <input
                         type="text"
                         className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
@@ -891,7 +902,7 @@ const ResumeBuilder = () => {
                         value={exp.endDate}
                         onChange={(e) => updateExperience(index, 'endDate', e.target.value)}
                       />
-                      <div className="col-span-2">
+                      <div className="col-span-1 sm:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                         <HtmlEditor
                           value={exp.description}
@@ -916,7 +927,7 @@ const ResumeBuilder = () => {
           {/* Education Tab */}
           {activeTab === 'education' && (
             <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Education</h4>
+              <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Education</h4>
               <div className="space-y-4">
                 {resumeData.education.map((edu, index) => (
                   <div key={edu.id} className="bg-gray-50 border-l-4 border-indigo-500 rounded-lg p-4">
@@ -929,7 +940,7 @@ const ResumeBuilder = () => {
                         <X size={18} />
                       </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <input
                         type="text"
                         className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
@@ -946,12 +957,12 @@ const ResumeBuilder = () => {
                       />
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none col-span-1 sm:col-span-2"
                         placeholder="Year"
                         value={edu.year}
                         onChange={(e) => updateEducation(index, 'year', e.target.value)}
                       />
-                      <div className="col-span-2">
+                      <div className="col-span-1 sm:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Description (optional)</label>
                         <HtmlEditor
                           value={edu.description}
@@ -976,7 +987,7 @@ const ResumeBuilder = () => {
           {/* Skills Tab */}
           {activeTab === 'skills' && (
             <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Skills</h4>
+              <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Skills</h4>
               <div className="space-y-4">
                 {resumeData.skills.map((skill, index) => (
                   <div key={skill.id} className="bg-gray-50 border-l-4 border-indigo-500 rounded-lg p-4">
@@ -1024,7 +1035,7 @@ const ResumeBuilder = () => {
           {/* Projects Tab */}
           {activeTab === 'projects' && (
             <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Projects</h4>
+              <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Projects</h4>
               <div className="space-y-4">
                 {resumeData.projects.map((project, index) => (
                   <div key={project.id} className="bg-gray-50 border-l-4 border-indigo-500 rounded-lg p-4">
@@ -1037,7 +1048,7 @@ const ResumeBuilder = () => {
                         <X size={18} />
                       </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <input
                         type="text"
                         className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
@@ -1054,12 +1065,12 @@ const ResumeBuilder = () => {
                       />
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none col-span-1 sm:col-span-2"
                         placeholder="Technologies Used"
                         value={project.technologies}
                         onChange={(e) => updateProject(index, 'technologies', e.target.value)}
                       />
-                      <div className="col-span-2">
+                      <div className="col-span-1 sm:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Project Description</label>
                         <HtmlEditor
                           value={project.description}
@@ -1084,7 +1095,7 @@ const ResumeBuilder = () => {
           {/* Certifications Tab */}
           {activeTab === 'certifications' && (
             <div>
-              <h4 className="text-2xl font-bold mb-6 text-gray-800">Certifications</h4>
+              <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Certifications</h4>
               <div className="space-y-4">
                 {resumeData.certifications.map((cert, index) => (
                   <div key={cert.id} className="bg-gray-50 border-l-4 border-indigo-500 rounded-lg p-4">
@@ -1097,7 +1108,7 @@ const ResumeBuilder = () => {
                         <X size={18} />
                       </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <input
                         type="text"
                         className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
@@ -1140,7 +1151,7 @@ const ResumeBuilder = () => {
                         value={cert.url}
                         onChange={(e) => updateCertification(index, 'url', e.target.value)}
                       />
-                      <div className="col-span-2">
+                      <div className="col-span-1 sm:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Description (optional)</label>
                         <HtmlEditor
                           value={cert.description}
@@ -1164,14 +1175,14 @@ const ResumeBuilder = () => {
         </div>
 
         {/* Preview Panel */}
-        <div className={`${isFullscreen ? 'w-full' : 'w-1/2'} bg-white border-l border-gray-200`}>
-          <div className="sticky top-0 bg-gray-50 border-b p-4 z-10">
-            <div className="flex justify-between items-center">
-              <h5 className="text-lg font-semibold text-gray-800 flex items-center">
-                <Eye className="mr-2 text-indigo-500" size={20} />
+        <div className={`${isFullscreen ? 'w-full' : 'w-full lg:w-1/2'} bg-white border-t lg:border-t-0 lg:border-l border-gray-200`}>
+          <div className="sticky top-0 bg-gray-50 border-b p-3 lg:p-4 z-10">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+              <h5 className="text-base lg:text-lg font-semibold text-gray-800 flex items-center">
+                <Eye className="mr-2 text-indigo-500" size={18} />
                 Live Preview
               </h5>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => changePreviewSize(-10)}
@@ -1215,9 +1226,9 @@ const ResumeBuilder = () => {
               </div>
             </div>
           </div>
-          <div className="p-6 h-full overflow-y-auto">
+          <div className="p-3 lg:p-6 h-full overflow-y-auto">
             <div 
-              className="resume-preview bg-white min-h-[600px] p-5 rounded-lg shadow-lg transition-transform"
+              className="resume-preview bg-white min-h-[400px] lg:min-h-[600px] p-3 lg:p-5 rounded-lg shadow-lg transition-transform"
               style={{ 
                 transform: `scale(${previewScale / 100})`,
                 transformOrigin: 'top left'
