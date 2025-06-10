@@ -698,7 +698,7 @@ const ResumeBuilder = () => {
                 <img 
                     src="/logo_color.webp" 
                     alt="Placed.Today" 
-                    className="w-10 h-10 rounded-lg shadow-md object-contain"
+                    className="w-100 h-10 rounded-lg shadow-md object-contain"
                 />
               </div>
 
