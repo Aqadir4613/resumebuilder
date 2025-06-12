@@ -1,310 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Download, Eye, Plus, Minus, RotateCcw, Maximize2, RefreshCw, X, Bold, Italic, Underline, List, ListOrdered, Type, ArrowLeft, ArrowRight, ChevronLeft, Edit3, User, Briefcase, GraduationCap, Settings, FolderOpen, Award } from 'lucide-react';
-
-const ResumeBuilder = () => {
-  const [currentTemplate, setCurrentTemplate] = useState(1);
-  const [previewScale, setPreviewScale] = useState(100);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [currentView, setCurrentView] = useState('templates'); // templates, sections, or specific section
-  const [activeSection, setActiveSection] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  
-  const [resumeData, setResumeData] = useState({
-    personal: {
-      fullName: 'John Doe',
-      professionalTitle: 'Software Developer',
-      email: 'john@example.com',
-      phone: '+1 234 567 8900',
-      location: 'New York, NY',
-      linkedin: 'linkedin.com/in/johndoe',
-      summary: 'Experienced software developer with expertise in modern web technologies and a passion for creating innovative solutions.'
-    },
-    experience: [
-      {
-        id: 1,
-        position: 'Senior Software Developer',
-        company: 'Tech Company Inc.',
-        startDate: '2022',
-        endDate: 'Present',
-        description: 'Led development of web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions.'
-      }
-    ],
-    education: [
-      {
-        id: 1,
-        degree: 'Bachelor of Science in Computer Science',
-        institution: 'University of Technology',
-        year: '2020',
-        description: 'Graduated with honors. Focused on software engineering and web development.'
-      }
-    ],
-    skills: [
-      {
-        id: 1,
-        name: 'Frontend Development',
-        tools: ['React', 'JavaScript', 'TypeScript', 'HTML/CSS']
-      },
-      {
-        id: 2,
-        name: 'Backend Development',
-        tools: ['Node.js', 'Python', 'MongoDB', 'PostgreSQL']
-      }
-    ],
-    projects: [
-      {
-        id: 1,
-        name: 'Resume Builder App',
-        description: 'Built a modern resume builder with React and real-time preview functionality.',
-        technologies: 'React, TailwindCSS, JavaScript',
-        url: 'https://resume.placed.today'
-      }
-    ],
-    certifications: [
-      {
-        id: 1,
-        name: 'AWS Certified Developer',
-        issuer: 'Amazon Web Services',
-        date: '2023',
-        expiryDate: '2026',
-        credentialId: 'AWS-123456',
-        url: '',
-        description: 'Certified in AWS cloud development and deployment practices.'
-      }
-    ]
-  });
-
-  // HTML Editor Component
-  const HtmlEditor = ({ value, onChange, placeholder = "Enter description...", minHeight = "100px" }) => {
-    const editorRef = useRef(null);
-
-    useEffect(() => {
-      if (editorRef.current && value !== editorRef.current.innerHTML) {
-        editorRef.current.innerHTML = value || '';
-      }
-    }, [value]);
-
-    const formatText = (command, value = null) => {
-      document.execCommand(command, false, value);
-      if (onChange) {
-        onChange(editorRef.current.innerHTML);
-      }
-    };
-
-    const handleInput = () => {
-      if (onChange) {
-        onChange(editorRef.current.innerHTML);
-      }
-    };
-
-    return (
-      <div className="editor-container">
-        <div className="editor-toolbar bg-gray-50 border border-gray-200 rounded-t-lg p-2 flex gap-2 flex-wrap">
-          <button
-            type="button"
-            className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors"
-            onClick={() => formatText('bold')}
-            title="Bold"
-          >
-            <Bold size={12} />
-          </button>
-          <button
-            type="button"
-            className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors"
-            onClick={() => formatText('italic')}
-            title="Italic"
-          >
-            <Italic size={12} />
-          </button>
-          <button
-            type="button"
-            className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors"
-            onClick={() => formatText('underline')}
-            title="Underline"
-          >
-            <Underline size={12} />
-          </button>
-          <button
-            type="button"
-            className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors"
-            onClick={() => formatText('insertUnorderedList')}
-            title="Bullet List"
-          >
-            <List size={12} />
-          </button>
-          <button
-            type="button"
-            className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors"
-            onClick={() => formatText('insertOrderedList')}
-            title="Numbered List"
-          >
-            <ListOrdered size={12} />
-          </button>
-          <button
-            type="button"
-            className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors"
-            onClick={() => formatText('removeFormat')}
-            title="Clear Formatting"
-          >
-            <Type size={12} />
-          </button>
-        </div>
-        <div
-          ref={editorRef}
-          className="html-editor border-2 border-gray-200 rounded-b-lg p-3 bg-white focus:border-indigo-500 focus:outline-none transition-colors font-inter text-sm leading-relaxed"
-          contentEditable="true"
-          onInput={handleInput}
-          style={{ minHeight }}
-          data-placeholder={placeholder}
-        />
-      </div>
-    );
-  };
-
-  // Template Components
-  const ModernTemplate = ({ data, editMode = false, onEdit }) => (
-    <div className="template-modern text-xs leading-snug">
-      <div className="header bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-8 text-center -m-5 mb-5 relative">
-        {editMode && (
-          <button
-            onClick={() => onEdit('personal')}
-            className="absolute top-2 right-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-lg transition-colors"
-          >
-            <Edit3 size={14} />
-          </button>
-        )}
-        <h1 className="text-2xl mb-1 font-semibold">{data.personal.fullName || 'Your Name'}</h1>
-        <div className="text-base opacity-90 mb-4">{data.personal.professionalTitle || 'Your Title'}</div>
-        <div className="contact-info text-xs flex justify-center gap-4 flex-wrap">
-          {data.personal.email && <span>📧 {data.personal.email}</span>}
-          {data.personal.phone && <span>📞 {data.personal.phone}</span>}
-          {data.personal.location && <span>📍 {data.personal.location}</span>}
-          {data.personal.linkedin && <span>🔗 {data.personal.linkedin}</span>}
-        </div>
-      </div>
-      <div className="content grid grid-cols-2 gap-8">
-        <div>
-          {data.personal.summary && (
-            <div className="section mb-6 relative">
-              {editMode && (
-                <button
-                  onClick={() => onEdit('personal')}
-                  className="absolute top-0 right-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 p-1 rounded transition-colors"
-                >
-                  <Edit3 size={12} />
-                </button>
-              )}
-              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Professional Summary</h3>
-              <div className="text-xs" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
-            </div>
-          )}
-          
-          {data.experience.length > 0 && (
-            <div className="section mb-6 relative">
-              {editMode && (
-                <button
-                  onClick={() => onEdit('experience')}
-                  className="absolute top-0 right-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 p-1 rounded transition-colors"
-                >
-                  <Edit3 size={12} />
-                </button>
-              )}
-              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Work Experience</h3>
-              {data.experience.map((exp, index) => (
-                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
-                  <div className="font-semibold text-gray-800 mb-1">{exp.position}</div>
-                  <div className="text-gray-600 text-xs mb-2">{exp.company} • {exp.startDate} - {exp.endDate}</div>
-                  <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: exp.description }} />
+{skill.tools.slice(0, 3).map((tool, toolIndex) => (
+                      <div key={toolIndex} className="flex items-center">
+                        <div className="w-2 h-2 bg-teal-400 rounded-full mr-2"></div>
+                        <span className="text-xs text-gray-700">{tool}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           )}
           
           {data.education.length > 0 && (
-            <div className="section mb-6 relative">
-              {editMode && (
-                <button
-                  onClick={() => onEdit('education')}
-                  className="absolute top-0 right-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 p-1 rounded transition-colors"
-                >
-                  <Edit3 size={12} />
-                </button>
-              )}
-              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Education</h3>
+            <div className="section mb-6">
+              <div className="flex items-center mb-3">
+                <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-white mr-2 text-xs">🎓</div>
+                <h3 className="text-teal-600 text-sm font-bold">Education</h3>
+              </div>
               {data.education.map((edu, index) => (
-                <div key={index} className="education-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
-                  <div className="font-semibold text-gray-800 mb-1">{edu.degree}</div>
-                  <div className="text-gray-600 text-xs mb-2">{edu.institution} • {edu.year}</div>
-                  {edu.description && <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: edu.description }} />}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        
-        <div>
-          {data.skills.length > 0 && (
-            <div className="section mb-6 relative">
-              {editMode && (
-                <button
-                  onClick={() => onEdit('skills')}
-                  className="absolute top-0 right-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 p-1 rounded transition-colors"
-                >
-                  <Edit3 size={12} />
-                </button>
-              )}
-              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Skills & Technologies</h3>
-              {data.skills.map((skill, index) => (
-                <div key={index} className="mb-4">
-                  <div className="text-xs font-semibold text-indigo-500 mb-1">{skill.name}</div>
-                  {skill.tools && skill.tools.length > 0 && (
-                    <ul className="list-disc list-inside text-xs text-gray-700 space-y-1">
-                      {skill.tools.map((tool, toolIndex) => (
-                        <li key={toolIndex}>{tool}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {data.projects.length > 0 && (
-            <div className="section mb-6 relative">
-              {editMode && (
-                <button
-                  onClick={() => onEdit('projects')}
-                  className="absolute top-0 right-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 p-1 rounded transition-colors"
-                >
-                  <Edit3 size={12} />
-                </button>
-              )}
-              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Projects</h3>
-              {data.projects.map((project, index) => (
-                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
-                  <div className="font-semibold text-gray-800 mb-1">{project.name}</div>
-                  <div className="text-xs text-gray-600 mb-2">{project.technologies}</div>
-                  <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: project.description }} />
+                <div key={index} className="mb-3 bg-teal-50 p-3 rounded border border-teal-200">
+                  <div className="font-semibold text-teal-900 text-xs">{edu.degree}</div>
+                  <div className="text-teal-600 text-xs">{edu.institution}</div>
+                  <div className="text-teal-500 text-xs">{edu.year}</div>
                 </div>
               ))}
             </div>
           )}
           
           {data.certifications.length > 0 && (
-            <div className="section mb-6 relative">
-              {editMode && (
-                <button
-                  onClick={() => onEdit('certifications')}
-                  className="absolute top-0 right-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 p-1 rounded transition-colors"
-                >
-                  <Edit3 size={12} />
-                </button>
-              )}
-              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Certifications</h3>
+            <div className="section mb-6">
+              <div className="flex items-center mb-3">
+                <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-white mr-2 text-xs">🏆</div>
+                <h3 className="text-teal-600 text-sm font-bold">Awards</h3>
+              </div>
               {data.certifications.map((cert, index) => (
-                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
-                  <div className="font-semibold text-gray-800 mb-1">{cert.name}</div>
-                  <div className="text-gray-600 text-xs mb-2">{cert.issuer} • {cert.date}</div>
-                  {cert.description && <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: cert.description }} />}
+                <div key={index} className="mb-2 text-xs">
+                  <div className="font-semibold text-teal-800">{cert.name}</div>
+                  <div className="text-teal-600">{cert.issuer}</div>
                 </div>
               ))}
             </div>
@@ -314,59 +45,47 @@ const ResumeBuilder = () => {
     </div>
   );
 
-  // Similar templates for Classic, Creative, Minimalist (shortened for brevity)
-  const ClassicTemplate = ({ data, editMode = false, onEdit }) => (
-    <div className="template-classic text-xs leading-snug">
-      <div className="header text-center border-b-2 border-gray-800 pb-5 mb-8 relative">
-        {editMode && (
-          <button
-            onClick={() => onEdit('personal')}
-            className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 rounded-lg transition-colors"
-          >
-            <Edit3 size={14} />
-          </button>
-        )}
-        <h1 className="text-3xl text-gray-800 mb-3 font-bold">{data.personal.fullName || 'Your Name'}</h1>
-        <div className="text-sm">{[data.personal.email, data.personal.phone, data.personal.location].filter(Boolean).join(' | ')}</div>
-      </div>
-      
-      {data.personal.summary && (
-        <div className="section mb-8 relative">
-          {editMode && (
-            <button
-              onClick={() => onEdit('personal')}
-              className="absolute top-0 right-0 bg-gray-100 hover:bg-gray-200 text-gray-600 p-1 rounded transition-colors"
-            >
-              <Edit3 size={12} />
-            </button>
-          )}
-          <h3 className="text-gray-800 text-lg mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">Professional Summary</h3>
-          <div className="text-xs" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
-        </div>
-      )}
-      
-      {/* Other sections with similar edit buttons */}
-    </div>
-  );
-
   const renderTemplate = () => {
-    const templateProps = {
-      data: resumeData,
-      editMode: editMode,
-      onEdit: (section) => {
-        setActiveSection(section);
-        setCurrentView('section');
-      }
-    };
+    const templateProps = { data: resumeData };
 
     switch(currentTemplate) {
       case 1: return <ModernTemplate {...templateProps} />;
       case 2: return <ClassicTemplate {...templateProps} />;
-      case 3: return <ModernTemplate {...templateProps} />; // Simplified - use Creative template
-      case 4: return <ModernTemplate {...templateProps} />; // Simplified - use Minimalist template
+      case 3: return <CreativeTemplate {...templateProps} />;
+      case 4: return <MinimalistTemplate {...templateProps} />;
+      case 5: return <ExecutiveTemplate {...templateProps} />;
+      case 6: return <TechTemplate {...templateProps} />;
+      case 7: return <AcademicTemplate {...templateProps} />;
+      case 8: return <StartupTemplate {...templateProps} />;
+      case 9: return <DesignerTemplate {...templateProps} />;
+      case 10: return <InfographicTemplate {...templateProps} />;
+      case 11: return <ModernTemplate {...templateProps} />; // Modern Blue variant
+      case 12: return <ClassicTemplate {...templateProps} />; // Classic Formal variant
+      case 13: return <CreativeTemplate {...templateProps} />; // Creative Artist variant
+      case 14: return <MinimalistTemplate {...templateProps} />; // Minimal White variant
+      case 15: return <ExecutiveTemplate {...templateProps} />; // Executive Light variant
       default: return <ModernTemplate {...templateProps} />;
     }
   };
+
+  // Updated template data with new templates
+  const templates = [
+    { id: 1, name: 'Modern Gradient', desc: 'Vibrant header with clean layout', category: 'Modern' },
+    { id: 2, name: 'Professional Classic', desc: 'Traditional, corporate-friendly', category: 'Classic' },
+    { id: 3, name: 'Creative Sidebar', desc: 'Colorful sidebar design', category: 'Creative' },
+    { id: 4, name: 'Clean Minimalist', desc: 'Simple and elegant', category: 'Minimal' },
+    { id: 5, name: 'Executive Dark', desc: 'Professional leadership style', category: 'Executive' },
+    { id: 6, name: 'Tech Developer', desc: 'Perfect for developers', category: 'Tech' },
+    { id: 7, name: 'Academic Research', desc: 'Academic and research focused', category: 'Academic' },
+    { id: 8, name: 'Startup Founder', desc: 'Dynamic entrepreneurial style', category: 'Startup' },
+    { id: 9, name: 'Creative Designer', desc: 'Portfolio showcase design', category: 'Creative' },
+    { id: 10, name: 'Infographic Style', desc: 'Data visualization approach', category: 'Modern' },
+    { id: 11, name: 'Modern Blue', desc: 'Blue-themed modern design', category: 'Modern' },
+    { id: 12, name: 'Classic Formal', desc: 'Ultra-professional format', category: 'Classic' },
+    { id: 13, name: 'Creative Artist', desc: 'Perfect for creative roles', category: 'Creative' },
+    { id: 14, name: 'Minimal White', desc: 'Ultra-clean white space', category: 'Minimal' },
+    { id: 15, name: 'Executive Light', desc: 'Light executive theme', category: 'Executive' }
+  ];
 
   // Section widgets data
   const sectionWidgets = [
@@ -433,7 +152,6 @@ const ResumeBuilder = () => {
     }));
   };
 
-  // Similar functions for other sections (education, skills, projects, certifications)
   const addEducation = () => {
     const newEdu = {
       id: Date.now(),
@@ -574,8 +292,44 @@ const ResumeBuilder = () => {
     setPreviewScale(100);
   };
 
-  const downloadPDF = () => {
-    window.print();
+  // PDF Download Function
+  const downloadPDF = async () => {
+    try {
+      // Create a temporary element for PDF generation
+      const element = document.getElementById('resume-for-pdf');
+      if (!element) {
+        alert('Resume not ready for download. Please try again.');
+        return;
+      }
+
+      // Dynamic import of html2pdf
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      const opt = {
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: `${resumeData.personal.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          letterRendering: true,
+          allowTaint: true
+        },
+        jsPDF: { 
+          unit: 'in', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        }
+      };
+
+      // Generate and download PDF
+      await html2pdf().set(opt).from(element).save();
+      
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      // Fallback to browser print
+      window.print();
+    }
   };
 
   const showNotification = (message, type = 'info') => {
@@ -586,8 +340,16 @@ const ResumeBuilder = () => {
   const handleTemplateSelect = (templateId) => {
     setCurrentTemplate(templateId);
     setCurrentView('sections');
-    setEditMode(true);
   };
+
+  // Group templates by category
+  const groupedTemplates = templates.reduce((acc, template) => {
+    if (!acc[template.category]) {
+      acc[template.category] = [];
+    }
+    acc[template.category].push(template);
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter">
@@ -662,35 +424,41 @@ const ResumeBuilder = () => {
           {currentView === 'templates' && (
             <div>
               <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Choose Your Template</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-                {[
-                  { id: 1, name: 'Modern', desc: 'Professional & Eye-catching' },
-                  { id: 2, name: 'Classic', desc: 'Traditional & Clean' },
-                  { id: 3, name: 'Creative', desc: 'Colorful & Unique' },
-                  { id: 4, name: 'Minimalist', desc: 'Simple & Elegant' }
-                ].map(template => (
-                  <div
-                    key={template.id}
-                    onClick={() => handleTemplateSelect(template.id)}
-                    className={`card cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 hover:shadow-lg ${
-                      currentTemplate === template.id
-                        ? 'border-indigo-500 shadow-xl bg-indigo-50'
-                        : 'border-gray-200 hover:border-indigo-300'
-                    }`}
-                  >
-                    <div className="h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                      <span className="text-4xl">📄</span>
-                    </div>
-                    <div className="text-center">
-                      <h6 className="font-semibold text-gray-800">{template.name}</h6>
-                      <small className="text-gray-600">{template.desc}</small>
-                    </div>
+              <p className="text-gray-600 mb-6">Select from 15 professional templates designed for different industries and roles.</p>
+              
+              {Object.entries(groupedTemplates).map(([category, categoryTemplates]) => (
+                <div key={category} className="mb-8">
+                  <h5 className="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                    <span className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></span>
+                    {category} Templates
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {categoryTemplates.map(template => (
+                      <div
+                        key={template.id}
+                        onClick={() => handleTemplateSelect(template.id)}
+                        className={`card cursor-pointer rounded-xl border-2 p-4 transition-all duration-300 hover:shadow-lg group ${
+                          currentTemplate === template.id
+                            ? 'border-indigo-500 shadow-xl bg-indigo-50'
+                            : 'border-gray-200 hover:border-indigo-300'
+                        }`}
+                      >
+                        <div className="h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-3 flex items-center justify-center group-hover:from-indigo-100 group-hover:to-purple-100 transition-colors">
+                          <span className="text-2xl">📄</span>
+                        </div>
+                        <div className="text-center">
+                          <h6 className="font-semibold text-gray-800 text-sm mb-1">{template.name}</h6>
+                          <small className="text-gray-600 text-xs">{template.desc}</small>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+              
               <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-700">
-                  💡 <strong>Tip:</strong> Select a template to start building your resume. You can customize each section and edit content directly on the preview.
+                  💡 <strong>Tip:</strong> Each template is optimized for different industries. Tech templates highlight technical skills, while Executive templates focus on leadership experience.
                 </p>
               </div>
             </div>
@@ -710,7 +478,7 @@ const ResumeBuilder = () => {
               </div>
               
               <h4 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6 text-gray-800">Resume Sections</h4>
-              <p className="text-gray-600 mb-6">Click on any section to edit its content. You can also edit directly on the resume preview.</p>
+              <p className="text-gray-600 mb-6">Click on any section to edit its content. Your resume is pre-filled with sample data.</p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {sectionWidgets.map((section) => {
@@ -755,7 +523,7 @@ const ResumeBuilder = () => {
               
               <div className="mt-8 p-4 bg-green-50 rounded-lg border border-green-200">
                 <p className="text-sm text-green-700">
-                  ✅ <strong>Quick Start:</strong> Your resume is pre-filled with sample data. Click on any section to customize it with your information.
+                  ✅ <strong>Quick Start:</strong> Your resume is pre-filled with professional sample data. Simply click on any section to customize it with your information.
                 </p>
               </div>
             </div>
@@ -901,13 +669,6 @@ const ResumeBuilder = () => {
                           placeholder="Company"
                           value={exp.company}
                           onChange={(e) => updateExperience(index, 'company', e.target.value)}
-                        />
-                        <input
-                          type="text"
-                          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
-                          placeholder="Start Date"
-                          value={exp.startDate}
-                          onChange={(e) => updateExperience(index, 'startDate', e.target.value)}
                         />
                         <input
                           type="text"
@@ -1184,18 +945,6 @@ const ResumeBuilder = () => {
               <h5 className="text-base lg:text-lg font-semibold text-gray-800 flex items-center">
                 <Eye className="mr-2 text-indigo-500" size={18} />
                 Live Preview
-                {currentView !== 'templates' && (
-                  <button
-                    onClick={() => setEditMode(!editMode)}
-                    className={`ml-4 px-3 py-1 text-xs rounded-full transition-colors ${
-                      editMode 
-                        ? 'bg-green-100 text-green-700 border border-green-300' 
-                        : 'bg-gray-100 text-gray-600 border border-gray-300'
-                    }`}
-                  >
-                    {editMode ? '✏️ Edit Mode' : '👁️ View Mode'}
-                  </button>
-                )}
               </h5>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                 <div className="flex items-center gap-2">
@@ -1247,11 +996,12 @@ const ResumeBuilder = () => {
                 <div className="text-center text-gray-500">
                   <div className="text-6xl mb-4">📄</div>
                   <h3 className="text-lg font-medium mb-2">Select a Template</h3>
-                  <p className="text-sm">Choose a template from the left to start building your resume</p>
+                  <p className="text-sm">Choose from 15 professional templates to start building your resume</p>
                 </div>
               </div>
             ) : (
               <div 
+                id="resume-for-pdf"
                 className="resume-preview bg-white min-h-[400px] lg:min-h-[600px] p-3 lg:p-5 rounded-lg shadow-lg transition-transform"
                 style={{ 
                   transform: `scale(${previewScale / 100})`,
@@ -1268,4 +1018,1067 @@ const ResumeBuilder = () => {
   );
 };
 
-export default ResumeBuilder;
+export default ResumeBuilder;          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const ExecutiveTemplate = ({ data }) => (
+    <div className="template-executive text-xs leading-snug bg-white">
+      <div className="header bg-gray-900 text-white p-8 -m-5 mb-8">
+        <div className="flex items-center gap-6">
+          <div className="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl font-bold">
+            {data.personal.fullName.split(' ').map(n => n[0]).join('')}
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{data.personal.fullName}</h1>
+            <div className="text-lg mb-3">{data.personal.professionalTitle}</div>
+            <div className="text-sm opacity-90">
+              {[data.personal.email, data.personal.phone, data.personal.location].filter(Boolean).join(' • ')}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {data.personal.summary && (
+        <div className="section mb-8">
+          <h3 className="text-gray-900 text-lg font-bold mb-4 border-l-4 border-gray-900 pl-3">Executive Summary</h3>
+          <div className="text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+        </div>
+      )}
+      
+      <div className="grid grid-cols-3 gap-8">
+        <div className="col-span-2">
+          {data.experience.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-900 text-lg font-bold mb-4 border-l-4 border-gray-900 pl-3">Professional Experience</h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="experience-item mb-6 pb-4 border-b border-gray-200 last:border-b-0">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-bold text-gray-900">{exp.position}</div>
+                      <div className="text-gray-700 font-medium">{exp.company}</div>
+                    </div>
+                    <div className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">{exp.startDate} - {exp.endDate}</div>
+                  </div>
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          {data.skills.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-900 text-base font-bold mb-4">Core Competencies</h3>
+              <div className="space-y-3">
+                {data.skills.map((skill, index) => (
+                  <div key={index} className="bg-gray-50 p-3 rounded">
+                    <div className="font-medium text-gray-800 text-xs mb-1">{skill.name}</div>
+                    <div className="text-xs text-gray-600">{skill.tools.join(', ')}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {data.education.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-900 text-base font-bold mb-4">Education</h3>
+              {data.education.map((edu, index) => (
+                <div key={index} className="education-item mb-4 bg-gray-50 p-3 rounded">
+                  <div className="font-semibold text-gray-800 text-xs">{edu.degree}</div>
+                  <div className="text-gray-600 text-xs">{edu.institution}</div>
+                  <div className="text-gray-500 text-xs">{edu.year}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.certifications.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-900 text-base font-bold mb-4">Certifications</h3>
+              {data.certifications.map((cert, index) => (
+                <div key={index} className="certification-item mb-3 bg-gray-50 p-3 rounded">
+                  <div className="font-semibold text-gray-800 text-xs">{cert.name}</div>
+                  <div className="text-gray-600 text-xs">{cert.issuer}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const TechTemplate = ({ data }) => (
+    <div className="template-tech text-xs leading-snug bg-white">
+      <div className="header bg-gradient-to-r from-green-400 to-blue-500 text-white p-6 -m-5 mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold mb-1">{data.personal.fullName}</h1>
+            <div className="text-base mb-2">{data.personal.professionalTitle}</div>
+            <div className="text-sm opacity-90">{data.personal.email} | {data.personal.phone}</div>
+          </div>
+          <div className="text-right">
+            <div className="w-16 h-16 bg-white bg-opacity-30 rounded-lg flex items-center justify-center text-xl font-bold">
+              {'</>'}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-3 gap-6">
+        <div className="col-span-2">
+          {data.personal.summary && (
+            <div className="section mb-6">
+              <h3 className="text-green-600 text-base font-bold mb-3 flex items-center">
+                <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                About
+              </h3>
+              <div className="text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+            </div>
+          )}
+          
+          {data.experience.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-green-600 text-base font-bold mb-3 flex items-center">
+                <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                Experience
+              </h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="experience-item mb-4 p-4 bg-gray-50 rounded-lg border-l-4 border-green-400">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-bold text-gray-900">{exp.position}</div>
+                      <div className="text-green-600 font-medium">{exp.company}</div>
+                    </div>
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">{exp.startDate} - {exp.endDate}</span>
+                  </div>
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.projects.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-green-600 text-base font-bold mb-3 flex items-center">
+                <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                Projects
+              </h3>
+              {data.projects.map((project, index) => (
+                <div key={index} className="project-item mb-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                  <div className="font-bold text-gray-900 mb-1">{project.name}</div>
+                  <div className="text-blue-600 text-xs font-medium mb-2">{project.technologies}</div>
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: project.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          {data.skills.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-green-600 text-base font-bold mb-3 flex items-center">
+                <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                Tech Stack
+              </h3>
+              {data.skills.map((skill, index) => (
+                <div key={index} className="mb-4">
+                  <div className="font-medium text-gray-800 text-xs mb-2 bg-gray-100 p-2 rounded">{skill.name}</div>
+                  <div className="flex flex-wrap gap-1">
+                    {skill.tools.map((tool, toolIndex) => (
+                      <span key={toolIndex} className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">{tool}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.education.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-green-600 text-base font-bold mb-3 flex items-center">
+                <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                Education
+              </h3>
+              {data.education.map((edu, index) => (
+                <div key={index} className="education-item mb-3 p-3 bg-gray-50 rounded">
+                  <div className="font-semibold text-gray-800 text-xs">{edu.degree}</div>
+                  <div className="text-gray-600 text-xs">{edu.institution}</div>
+                  <div className="text-green-600 text-xs font-medium">{edu.year}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.certifications.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-green-600 text-base font-bold mb-3 flex items-center">
+                <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                Certifications
+              </h3>
+              {data.certifications.map((cert, index) => (
+                <div key={index} className="cert-item mb-3 p-3 bg-green-50 rounded border border-green-200">
+                  <div className="font-semibold text-gray-800 text-xs">{cert.name}</div>
+                  <div className="text-green-700 text-xs">{cert.issuer}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const AcademicTemplate = ({ data }) => (
+    <div className="template-academic text-xs leading-snug bg-white">
+      <div className="header text-center border-b-3 border-blue-600 pb-6 mb-8">
+        <h1 className="text-3xl text-blue-900 mb-2 font-serif">{data.personal.fullName}</h1>
+        <div className="text-lg text-blue-700 mb-3">{data.personal.professionalTitle}</div>
+        <div className="text-sm text-gray-600">
+          {[data.personal.email, data.personal.phone, data.personal.location].filter(Boolean).join(' | ')}
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 gap-6">
+        {data.personal.summary && (
+          <div className="section">
+            <h3 className="text-blue-900 text-base font-serif mb-3 border-b border-blue-200 pb-1">Research Interests</h3>
+            <div className="text-xs italic" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+          </div>
+        )}
+        
+        <div className="grid grid-cols-2 gap-8">
+          <div>
+            {data.education.length > 0 && (
+              <div className="section mb-6">
+                <h3 className="text-blue-900 text-base font-serif mb-3 border-b border-blue-200 pb-1">Education</h3>
+                {data.education.map((edu, index) => (
+                  <div key={index} className="mb-4">
+                    <div className="font-bold text-blue-900">{edu.degree}</div>
+                    <div className="text-blue-700 font-medium">{edu.institution}</div>
+                    <div className="text-gray-600 text-xs">{edu.year}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {data.experience.length > 0 && (
+              <div className="section mb-6">
+                <h3 className="text-blue-900 text-base font-serif mb-3 border-b border-blue-200 pb-1">Academic Experience</h3>
+                {data.experience.map((exp, index) => (
+                  <div key={index} className="mb-4">
+                    <div className="font-bold text-blue-900">{exp.position}</div>
+                    <div className="text-blue-700">{exp.company}</div>
+                    <div className="text-gray-600 text-xs mb-1">{exp.startDate} - {exp.endDate}</div>
+                    <div className="text-xs" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div>
+            {data.projects.length > 0 && (
+              <div className="section mb-6">
+                <h3 className="text-blue-900 text-base font-serif mb-3 border-b border-blue-200 pb-1">Publications & Research</h3>
+                {data.projects.map((project, index) => (
+                  <div key={index} className="mb-4">
+                    <div className="font-bold text-blue-900">{project.name}</div>
+                    <div className="text-xs italic text-gray-600 mb-1">{project.technologies}</div>
+                    <div className="text-xs" dangerouslySetInnerHTML={{ __html: project.description }} />
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {data.skills.length > 0 && (
+              <div className="section mb-6">
+                <h3 className="text-blue-900 text-base font-serif mb-3 border-b border-blue-200 pb-1">Skills & Competencies</h3>
+                {data.skills.map((skill, index) => (
+                  <div key={index} className="mb-3">
+                    <div className="font-medium text-blue-800 text-xs">{skill.name}</div>
+                    <div className="text-xs text-gray-700">{skill.tools.join(', ')}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const StartupTemplate = ({ data }) => (
+    <div className="template-startup text-xs leading-snug bg-white">
+      <div className="header bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 text-white p-6 -m-5 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full -mr-16 -mt-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white bg-opacity-10 rounded-full -ml-12 -mb-12"></div>
+        <div className="relative z-10">
+          <h1 className="text-2xl font-bold mb-1">{data.personal.fullName}</h1>
+          <div className="text-base mb-3">{data.personal.professionalTitle}</div>
+          <div className="text-sm opacity-90">{data.personal.email} • {data.personal.phone}</div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-4 gap-6">
+        <div className="col-span-3">
+          {data.personal.summary && (
+            <div className="section mb-6">
+              <h3 className="text-orange-600 text-base font-bold mb-3 flex items-center">
+                <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                Vision & Mission
+              </h3>
+              <div className="text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+            </div>
+          )}
+          
+          {data.experience.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-orange-600 text-base font-bold mb-3 flex items-center">
+                <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
+                Journey
+              </h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="mb-6 relative pl-6">
+                  <div className="absolute left-0 top-1 w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <div className="absolute left-1 top-3 w-0.5 h-full bg-orange-200"></div>
+                  <div className="font-bold text-gray-900 mb-1">{exp.position}</div>
+                  <div className="text-orange-600 font-medium mb-1">{exp.company}</div>
+                  <div className="text-gray-500 text-xs mb-2">{exp.startDate} - {exp.endDate}</div>
+                  <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          {data.skills.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-orange-600 text-base font-bold mb-3">Superpowers</h3>
+              {data.skills.map((skill, index) => (
+                <div key={index} className="mb-4 bg-orange-50 p-3 rounded-lg">
+                  <div className="font-medium text-orange-800 text-xs mb-1">{skill.name}</div>
+                  <div className="flex flex-wrap gap-1">
+                    {skill.tools.map((tool, toolIndex) => (
+                      <span key={toolIndex} className="bg-orange-200 text-orange-800 px-1 py-0.5 rounded text-xs">{tool}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.projects.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-orange-600 text-base font-bold mb-3">Ventures</h3>
+              {data.projects.map((project, index) => (
+                <div key={index} className="mb-4 bg-gradient-to-br from-orange-50 to-red-50 p-3 rounded-lg border border-orange-200">
+                  <div className="font-bold text-gray-900 text-xs mb-1">{project.name}</div>
+                  <div className="text-orange-600 text-xs mb-1">{project.technologies}</div>
+                  <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: project.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const DesignerTemplate = ({ data }) => (
+    <div className="template-designer text-xs leading-snug bg-white relative">
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500"></div>
+      
+      <div className="header pt-8 pb-6 text-center">
+        <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-xl font-bold">
+          {data.personal.fullName.split(' ').map(n => n[0]).join('')}
+        </div>
+        <h1 className="text-3xl text-gray-800 mb-2 font-light">{data.personal.fullName}</h1>
+        <div className="text-lg text-purple-600 mb-4">{data.personal.professionalTitle}</div>
+        <div className="text-sm text-gray-600">
+          {[data.personal.email, data.personal.phone, data.personal.location].filter(Boolean).join(' • ')}
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-3 gap-8">
+        <div>
+          {data.personal.summary && (
+            <div className="section mb-6">
+              <h3 className="text-purple-600 text-base font-bold mb-3 relative">
+                <span className="absolute -left-4 top-1 w-1 h-4 bg-purple-500 rounded"></span>
+                About
+              </h3>
+              <div className="text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+            </div>
+          )}
+          
+          {data.skills.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-purple-600 text-base font-bold mb-3 relative">
+                <span className="absolute -left-4 top-1 w-1 h-4 bg-purple-500 rounded"></span>
+                Design Skills
+              </h3>
+              {data.skills.map((skill, index) => (
+                <div key={index} className="mb-3">
+                  <div className="font-medium text-gray-800 text-xs mb-1">{skill.name}</div>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
+                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 rounded-full" style={{ width: '85%' }}></div>
+                  </div>
+                  <div className="text-xs text-gray-600">{skill.tools.join(', ')}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div className="col-span-2">
+          {data.experience.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-purple-600 text-base font-bold mb-3 relative">
+                <span className="absolute -left-4 top-1 w-1 h-4 bg-purple-500 rounded"></span>
+                Design Experience
+              </h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="mb-6 bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border-l-4 border-purple-400">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-bold text-gray-900">{exp.position}</div>
+                      <div className="text-purple-600 font-medium">{exp.company}</div>
+                    </div>
+                    <div className="text-xs text-gray-500 bg-white px-2 py-1 rounded">{exp.startDate} - {exp.endDate}</div>
+                  </div>
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.projects.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-purple-600 text-base font-bold mb-3 relative">
+                <span className="absolute -left-4 top-1 w-1 h-4 bg-purple-500 rounded"></span>
+                Design Portfolio
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                {data.projects.map((project, index) => (
+                  <div key={index} className="bg-white border-2 border-purple-100 p-4 rounded-lg hover:border-purple-300 transition-colors">
+                    <div className="w-full h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded mb-3 flex items-center justify-center">
+                      <span className="text-purple-500 text-lg">🎨</span>
+                    </div>
+                    <div className="font-bold text-gray-900 text-xs mb-1">{project.name}</div>
+                    <div className="text-purple-600 text-xs mb-2">{project.technologies}</div>
+                    <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: project.description }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const InfographicTemplate = ({ data }) => (
+    <div className="template-infographic text-xs leading-snug bg-white">
+      <div className="header bg-gradient-to-br from-teal-400 to-blue-500 text-white p-6 -m-5 mb-6 relative">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold mb-1">{data.personal.fullName}</h1>
+            <div className="text-base mb-2">{data.personal.professionalTitle}</div>
+            <div className="text-sm opacity-90">{data.personal.email}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-6xl opacity-30">📊</div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-4 gap-6">
+        <div className="col-span-3">
+          {data.personal.summary && (
+            <div className="section mb-6">
+              <div className="flex items-center mb-3">
+                <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white mr-3">👤</div>
+                <h3 className="text-teal-600 text-base font-bold">Profile</h3>
+              </div>
+              <div className="text-xs leading-relaxed pl-11" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+            </div>
+          )}
+          
+          {data.experience.length > 0 && (
+            <div className="section mb-6">
+              <div className="flex items-center mb-3">
+                <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white mr-3">💼</div>
+                <h3 className="text-teal-600 text-base font-bold">Experience Timeline</h3>
+              </div>
+              <div className="pl-11">
+                {data.experience.map((exp, index) => (
+                  <div key={index} className="relative mb-6">
+                    <div className="absolute -left-6 top-2 w-4 h-4 bg-teal-400 rounded-full border-2 border-white shadow"></div>
+                    {index < data.experience.length - 1 && (
+                      <div className="absolute -left-5 top-6 w-0.5 h-16 bg-teal-200"></div>
+                    )}
+                    <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <div className="font-bold text-teal-900">{exp.position}</div>
+                          <div className="text-teal-600">{exp.company}</div>
+                        </div>
+                        <span className="bg-teal-500 text-white px-2 py-1 rounded text-xs">{exp.startDate} - {exp.endDate}</span>
+                      </div>
+                      <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <div>
+          {data.skills.length > 0 && (
+            <div className="section mb-6">
+              <div className="flex items-center mb-3">
+                <div className="w-6 h-6 bg-teal-500 rounded-full flex items-center justify-center text-white mr-2 text-xs">⚡</div>
+                <h3 className="text-teal-600 text-sm font-bold">Skills</h3>
+              </div>
+              {data.skills.map((skill, index) => (
+                <div key={index} className="mb-4">
+                  <div className="font-medium text-teal-800 text-xs mb-2">{skill.name}</div>
+                  <div className="space-y-1">
+                    {skill.tools.slice(0, 3).map((tool, toolIndex) =>import React, { useState, useEffect, useRef } from 'react';
+import { Download, Eye, Plus, Minus, RotateCcw, Maximize2, RefreshCw, X, Bold, Italic, Underline, List, ListOrdered, Type, ArrowLeft, ArrowRight, ChevronLeft, User, Briefcase, GraduationCap, Settings, FolderOpen, Award } from 'lucide-react';
+
+const ResumeBuilder = () => {
+  const [currentTemplate, setCurrentTemplate] = useState(1);
+  const [previewScale, setPreviewScale] = useState(100);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentView, setCurrentView] = useState('templates');
+  const [activeSection, setActiveSection] = useState(null);
+  
+  const [resumeData, setResumeData] = useState({
+    personal: {
+      fullName: 'John Doe',
+      professionalTitle: 'Software Developer',
+      email: 'john@example.com',
+      phone: '+1 234 567 8900',
+      location: 'New York, NY',
+      linkedin: 'linkedin.com/in/johndoe',
+      website: 'johndoe.dev',
+      summary: 'Experienced software developer with expertise in modern web technologies and a passion for creating innovative solutions that drive business growth.'
+    },
+    experience: [
+      {
+        id: 1,
+        position: 'Senior Software Developer',
+        company: 'Tech Innovations Inc.',
+        startDate: '2022',
+        endDate: 'Present',
+        description: 'Led development of web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions. Improved application performance by 40% through code optimization.'
+      },
+      {
+        id: 2,
+        position: 'Frontend Developer',
+        company: 'Digital Solutions Ltd.',
+        startDate: '2020',
+        endDate: '2022',
+        description: 'Developed responsive web interfaces using modern JavaScript frameworks. Worked closely with UX/UI designers to implement pixel-perfect designs.'
+      }
+    ],
+    education: [
+      {
+        id: 1,
+        degree: 'Bachelor of Science in Computer Science',
+        institution: 'University of Technology',
+        year: '2020',
+        description: 'Graduated with honors. Focused on software engineering and web development. Relevant coursework: Data Structures, Algorithms, Database Systems.'
+      }
+    ],
+    skills: [
+      {
+        id: 1,
+        name: 'Frontend Development',
+        tools: ['React', 'JavaScript', 'TypeScript', 'HTML/CSS', 'Vue.js']
+      },
+      {
+        id: 2,
+        name: 'Backend Development',
+        tools: ['Node.js', 'Python', 'Express', 'MongoDB', 'PostgreSQL']
+      },
+      {
+        id: 3,
+        name: 'Tools & Technologies',
+        tools: ['Git', 'Docker', 'AWS', 'Jest', 'Webpack']
+      }
+    ],
+    projects: [
+      {
+        id: 1,
+        name: 'Resume Builder Platform',
+        description: 'Built a comprehensive resume builder with real-time preview, multiple templates, and PDF export functionality. Implemented drag-and-drop interface and cloud storage integration.',
+        technologies: 'React, Node.js, MongoDB, AWS S3',
+        url: 'https://resume.placed.today'
+      },
+      {
+        id: 2,
+        name: 'E-commerce Dashboard',
+        description: 'Developed an analytics dashboard for e-commerce platforms with real-time data visualization, sales tracking, and inventory management features.',
+        technologies: 'Vue.js, Python, PostgreSQL, Chart.js',
+        url: 'https://github.com/johndoe/ecommerce-dashboard'
+      }
+    ],
+    certifications: [
+      {
+        id: 1,
+        name: 'AWS Certified Developer Associate',
+        issuer: 'Amazon Web Services',
+        date: '2023',
+        expiryDate: '2026',
+        credentialId: 'AWS-123456789',
+        url: 'https://aws.amazon.com/verification',
+        description: 'Certified in AWS cloud development and deployment practices, serverless architectures, and CI/CD pipelines.'
+      }
+    ]
+  });
+
+  // HTML Editor Component
+  const HtmlEditor = ({ value, onChange, placeholder = "Enter description...", minHeight = "100px" }) => {
+    const editorRef = useRef(null);
+
+    useEffect(() => {
+      if (editorRef.current && value !== editorRef.current.innerHTML) {
+        editorRef.current.innerHTML = value || '';
+      }
+    }, [value]);
+
+    const formatText = (command, value = null) => {
+      document.execCommand(command, false, value);
+      if (onChange) {
+        onChange(editorRef.current.innerHTML);
+      }
+    };
+
+    const handleInput = () => {
+      if (onChange) {
+        onChange(editorRef.current.innerHTML);
+      }
+    };
+
+    return (
+      <div className="editor-container">
+        <div className="editor-toolbar bg-gray-50 border border-gray-200 rounded-t-lg p-2 flex gap-2 flex-wrap">
+          <button type="button" className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors" onClick={() => formatText('bold')} title="Bold">
+            <Bold size={12} />
+          </button>
+          <button type="button" className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors" onClick={() => formatText('italic')} title="Italic">
+            <Italic size={12} />
+          </button>
+          <button type="button" className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors" onClick={() => formatText('underline')} title="Underline">
+            <Underline size={12} />
+          </button>
+          <button type="button" className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors" onClick={() => formatText('insertUnorderedList')} title="Bullet List">
+            <List size={12} />
+          </button>
+          <button type="button" className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors" onClick={() => formatText('insertOrderedList')} title="Numbered List">
+            <ListOrdered size={12} />
+          </button>
+          <button type="button" className="editor-btn bg-white border border-gray-300 rounded px-2 py-1 text-xs hover:bg-indigo-500 hover:text-white transition-colors" onClick={() => formatText('removeFormat')} title="Clear Formatting">
+            <Type size={12} />
+          </button>
+        </div>
+        <div
+          ref={editorRef}
+          className="html-editor border-2 border-gray-200 rounded-b-lg p-3 bg-white focus:border-indigo-500 focus:outline-none transition-colors font-inter text-sm leading-relaxed"
+          contentEditable="true"
+          onInput={handleInput}
+          style={{ minHeight }}
+          data-placeholder={placeholder}
+        />
+      </div>
+    );
+  };
+
+  // Template Components
+  const ModernTemplate = ({ data }) => (
+    <div className="template-modern text-xs leading-snug bg-white">
+      <div className="header bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-8 text-center -m-5 mb-5">
+        <h1 className="text-2xl mb-1 font-semibold">{data.personal.fullName}</h1>
+        <div className="text-base opacity-90 mb-4">{data.personal.professionalTitle}</div>
+        <div className="contact-info text-xs flex justify-center gap-4 flex-wrap">
+          {data.personal.email && <span>📧 {data.personal.email}</span>}
+          {data.personal.phone && <span>📞 {data.personal.phone}</span>}
+          {data.personal.location && <span>📍 {data.personal.location}</span>}
+          {data.personal.linkedin && <span>🔗 {data.personal.linkedin}</span>}
+        </div>
+      </div>
+      <div className="content grid grid-cols-2 gap-8">
+        <div>
+          {data.personal.summary && (
+            <div className="section mb-6">
+              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Professional Summary</h3>
+              <div className="text-xs" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+            </div>
+          )}
+          
+          {data.experience.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Work Experience</h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold text-gray-800 mb-1">{exp.position}</div>
+                  <div className="text-gray-600 text-xs mb-2">{exp.company} • {exp.startDate} - {exp.endDate}</div>
+                  <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.education.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Education</h3>
+              {data.education.map((edu, index) => (
+                <div key={index} className="education-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold text-gray-800 mb-1">{edu.degree}</div>
+                  <div className="text-gray-600 text-xs mb-2">{edu.institution} • {edu.year}</div>
+                  {edu.description && <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: edu.description }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          {data.skills.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Skills & Technologies</h3>
+              {data.skills.map((skill, index) => (
+                <div key={index} className="mb-4">
+                  <div className="text-xs font-semibold text-indigo-500 mb-1">{skill.name}</div>
+                  {skill.tools && skill.tools.length > 0 && (
+                    <ul className="list-disc list-inside text-xs text-gray-700 space-y-1">
+                      {skill.tools.map((tool, toolIndex) => (
+                        <li key={toolIndex}>{tool}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.projects.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Projects</h3>
+              {data.projects.map((project, index) => (
+                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold text-gray-800 mb-1">{project.name}</div>
+                  <div className="text-xs text-gray-600 mb-2">{project.technologies}</div>
+                  <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: project.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.certifications.length > 0 && (
+            <div className="section mb-6">
+              <h3 className="text-indigo-500 text-base mb-4 border-b-2 border-indigo-500 pb-1">Certifications</h3>
+              {data.certifications.map((cert, index) => (
+                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold text-gray-800 mb-1">{cert.name}</div>
+                  <div className="text-gray-600 text-xs mb-2">{cert.issuer} • {cert.date}</div>
+                  {cert.description && <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: cert.description }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const ClassicTemplate = ({ data }) => (
+    <div className="template-classic text-xs leading-snug bg-white">
+      <div className="header text-center border-b-2 border-gray-800 pb-5 mb-8">
+        <h1 className="text-3xl text-gray-800 mb-3 font-bold">{data.personal.fullName}</h1>
+        <div className="text-sm">{[data.personal.email, data.personal.phone, data.personal.location].filter(Boolean).join(' | ')}</div>
+      </div>
+      
+      {data.personal.summary && (
+        <div className="section mb-8">
+          <h3 className="text-gray-800 text-lg mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">Professional Summary</h3>
+          <div className="text-xs" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+        </div>
+      )}
+      
+      <div className="grid grid-cols-2 gap-8">
+        <div>
+          {data.experience.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-800 text-lg mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">Work History</h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="flex justify-between items-start mb-1">
+                    <div className="font-bold">{exp.position}</div>
+                    <div className="italic text-gray-600 text-xs">{exp.startDate} - {exp.endDate}</div>
+                  </div>
+                  <div className="text-gray-600 text-xs mb-2">{exp.company}</div>
+                  <div className="text-xs" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.education.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-800 text-lg mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">Education</h3>
+              {data.education.map((edu, index) => (
+                <div key={index} className="education-item mb-4">
+                  <div className="font-bold">{edu.degree}</div>
+                  <div className="text-gray-600 text-xs">{edu.institution} • {edu.year}</div>
+                  {edu.description && <div className="text-xs mt-1" dangerouslySetInnerHTML={{ __html: edu.description }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          {data.skills.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-800 text-lg mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">Skills</h3>
+              <div className="text-xs">{data.skills.map(skill => skill.name).join(' • ')}</div>
+            </div>
+          )}
+          
+          {data.projects.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-800 text-lg mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">Projects</h3>
+              {data.projects.map((project, index) => (
+                <div key={index} className="experience-item mb-5 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold">{project.name}</div>
+                  {project.technologies && <div className="text-xs text-gray-600 mb-1"><strong>Tech:</strong> {project.technologies}</div>}
+                  <div className="text-xs" dangerouslySetInnerHTML={{ __html: project.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.certifications.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-gray-800 text-lg mb-3 uppercase tracking-wide border-b border-gray-400 pb-1">Certifications</h3>
+              {data.certifications.map((cert, index) => (
+                <div key={index} className="experience-item mb-4">
+                  <div className="font-semibold">{cert.name}</div>
+                  <div className="text-xs text-gray-600 mb-1">{cert.issuer} • {cert.date}</div>
+                  {cert.description && <div className="text-xs" dangerouslySetInnerHTML={{ __html: cert.description }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const CreativeTemplate = ({ data }) => (
+    <div className="template-creative bg-white">
+      <div className="grid grid-cols-[250px_1fr] gap-0 -m-5 min-h-[600px] text-xs">
+        <div className="sidebar bg-gradient-to-b from-pink-500 via-purple-500 to-indigo-600 text-white p-6">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-white bg-opacity-30 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-bold">
+              {data.personal.fullName.split(' ').map(n => n[0]).join('')}
+            </div>
+            <h1 className="text-xl font-bold mb-2">{data.personal.fullName}</h1>
+            <div className="text-sm opacity-90">{data.personal.professionalTitle}</div>
+          </div>
+          
+          <div className="mb-6">
+            <h3 className="text-sm font-bold mb-3 uppercase tracking-wide">Contact</h3>
+            {data.personal.email && <div className="text-xs mb-2 break-all">📧 {data.personal.email}</div>}
+            {data.personal.phone && <div className="text-xs mb-2">📞 {data.personal.phone}</div>}
+            {data.personal.location && <div className="text-xs mb-2">📍 {data.personal.location}</div>}
+            {data.personal.linkedin && <div className="text-xs mb-2 break-all">🔗 {data.personal.linkedin}</div>}
+          </div>
+          
+          {data.skills.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-bold mb-3 uppercase tracking-wide">Skills</h3>
+              {data.skills.map((skill, index) => (
+                <div key={index} className="bg-white bg-opacity-20 rounded-lg p-3 mb-3">
+                  <div className="text-xs font-medium mb-1">{skill.name}</div>
+                  {skill.tools && skill.tools.length > 0 && (
+                    <div className="text-xs opacity-80">{skill.tools.join(', ')}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.certifications.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-sm font-bold mb-3 uppercase tracking-wide">Certifications</h3>
+              {data.certifications.map((cert, index) => (
+                <div key={index} className="bg-white bg-opacity-20 rounded-lg p-3 mb-3">
+                  <div className="text-xs font-medium">{cert.name}</div>
+                  <div className="text-xs opacity-80">{cert.issuer}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div className="main-content p-8 bg-white">
+          {data.personal.summary && (
+            <div className="section mb-8">
+              <h3 className="text-purple-600 text-lg font-bold mb-4 border-b-2 border-purple-200 pb-2">About Me</h3>
+              <div className="text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+            </div>
+          )}
+          
+          {data.experience.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-purple-600 text-lg font-bold mb-4 border-b-2 border-purple-200 pb-2">Experience</h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="experience-item mb-6 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold text-gray-800 mb-1">{exp.position}</div>
+                  <div className="text-purple-600 text-xs font-medium mb-2">{exp.company} • {exp.startDate} - {exp.endDate}</div>
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.education.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-purple-600 text-lg font-bold mb-4 border-b-2 border-purple-200 pb-2">Education</h3>
+              {data.education.map((edu, index) => (
+                <div key={index} className="education-item mb-6">
+                  <div className="font-semibold text-gray-800 mb-1">{edu.degree}</div>
+                  <div className="text-purple-600 text-xs font-medium mb-2">{edu.institution} • {edu.year}</div>
+                  {edu.description && <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: edu.description }} />}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.projects.length > 0 && (
+            <div className="section mb-8">
+              <h3 className="text-purple-600 text-lg font-bold mb-4 border-b-2 border-purple-200 pb-2">Projects</h3>
+              {data.projects.map((project, index) => (
+                <div key={index} className="experience-item mb-6 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold text-gray-800 mb-1">{project.name}</div>
+                  <div className="text-purple-600 text-xs font-medium mb-2">{project.technologies}</div>
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: project.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const MinimalistTemplate = ({ data }) => (
+    <div className="template-minimalist text-xs leading-snug bg-white">
+      <div className="header text-center mb-12">
+        <h1 className="text-4xl font-light text-gray-700 mb-2 tracking-tight">{data.personal.fullName}</h1>
+        <div className="text-base text-gray-600 mb-4">{data.personal.professionalTitle}</div>
+        <div className="text-xs text-gray-500">
+          {[data.personal.email, data.personal.phone, data.personal.location].filter(Boolean).join(' • ')}
+        </div>
+      </div>
+      
+      {data.personal.summary && (
+        <div className="mb-10">
+          <div className="text-center italic text-gray-600 text-xs max-w-3xl mx-auto" dangerouslySetInnerHTML={{ __html: data.personal.summary }} />
+        </div>
+      )}
+      
+      <div className="grid grid-cols-2 gap-12">
+        <div>
+          {data.experience.length > 0 && (
+            <div className="section mb-10">
+              <h3 className="text-sm uppercase tracking-[3px] text-gray-700 mb-6 font-semibold">Work History</h3>
+              {data.experience.map((exp, index) => (
+                <div key={index} className="experience-item mb-8 pb-6 border-b border-gray-100 last:border-b-0">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="font-semibold text-gray-800">{exp.position}</div>
+                    <div className="text-xs text-gray-500">{exp.startDate} - {exp.endDate}</div>
+                  </div>
+                  <div className="text-gray-600 text-xs mb-3">{exp.company}</div>
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.education.length > 0 && (
+            <div className="section mb-10">
+              <h3 className="text-sm uppercase tracking-[3px] text-gray-700 mb-6 font-semibold">Education</h3>
+              {data.education.map((edu, index) => (
+                <div key={index} className="education-item mb-6">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="font-semibold text-gray-800">{edu.degree}</div>
+                      <div className="text-gray-600 text-xs">{edu.institution}</div>
+                    </div>
+                    <div className="text-xs text-gray-500">{edu.year}</div>
+                  </div>
+                  {edu.description && <div className="text-xs text-gray-700 mt-2" dangerouslySetInnerHTML={{ __html: edu.description }} />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        <div>
+          {data.skills.length > 0 && (
+            <div className="section mb-10">
+              <h3 className="text-sm uppercase tracking-[3px] text-gray-700 mb-6 font-semibold">Skills</h3>
+              <div className="space-y-4">
+                {data.skills.map((skill, index) => (
+                  <div key={index}>
+                    <div className="font-medium text-gray-800 text-xs mb-2">{skill.name}</div>
+                    <div className="flex flex-wrap gap-2">
+                      {skill.tools.map((tool, toolIndex) => (
+                        <span key={toolIndex} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">{tool}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {data.projects.length > 0 && (
+            <div className="section mb-10">
+              <h3 className="text-sm uppercase tracking-[3px] text-gray-700 mb-6 font-semibold">Projects</h3>
+              {data.projects.map((project, index) => (
+                <div key={index} className="experience-item mb-6 pb-4 border-b border-gray-100 last:border-b-0">
+                  <div className="font-semibold text-gray-800 mb-1">{project.name}</div>
+                  {project.technologies && <div className="text-xs text-gray-500 mb-2">{project.technologies}</div>}
+                  <div className="text-xs text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: project.description }} />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {data.certifications.length > 0 && (
+            <div className="section mb-10">
+              <h3 className="text-sm uppercase tracking-[3px] text-gray-700 mb-6 font-semibold">Certifications</h3>
+              {data.certifications.map((cert, index) => (
+                <div key={index} className="experience-item mb-6">
+                  <div className="font-semibold text-gray-800 mb-1">{cert.name}</div>
+                  <div className="text-gray-600 text-xs mb-2">{cert.issuer} • {cert.date}</div>
+                  {cert.description && <div className="text-xs text-gray-700" dangerouslySetInnerHTML={{ __html: cert.description }} />}
+                </div>
+              ))}
+            </div>
+          )}
